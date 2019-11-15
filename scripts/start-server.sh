@@ -93,9 +93,6 @@ echo "---Preparing Server---"
 find ${DATA_DIR} -name ".*" -exec rm -R -f {} \;
 chmod -R 777 ${DATA_DIR}
 
-echo "---Sleep zZz---"
-sleep infinity
-
 echo "---Starting Server---"
 cd ${DATA_DIR}/doh-client
 ${DATA_DIR}/doh-client/doh-client -conf ${DATA_DIR}/doh-client.conf
