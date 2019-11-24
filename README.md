@@ -9,7 +9,7 @@ You can also use this infront of your PiHole to also block Ad's and with DoH-Ser
 
 If you have any questions feel free to ask them on the support thread in the Unraid Forums.
 
-Update Notice: If you want to upgrade to a newer version of the DoH-Server just enter the preferred version number (eg. '2.1.2' without quotes, get them from here: https://github.com/m13253/dns-over-https/releases)
+Update Notice: If you want to upgrade to a newer version of the DoH-Server just enter the preferred version number (eg. '2.1.2' without quotes, get them from here: https://github.com/m13253/dns-over-https/releases or set it to 'latest' without quotes to check on every startup for a new version)
 
 The Docker needs to be run in bridge mode and a Fixed IP address and with the CAP and SYSCTL in the run example below added.
 
@@ -18,7 +18,7 @@ The Docker needs to be run in bridge mode and a Fixed IP address and with the CA
 ## Env params
 | Name | Value | Example |
 | --- | --- | --- |
-| DoH_V | Version to install | 2.1.2 |
+| DoH_V | Version to install (set to 'latest' to install the latest version) | latest |
 | GO_DL_URL | The download url for Golang | https://dl.google.com/go/go1.1... |
 | UID | User Identifier | 99 |
 | GID | Group Identifier | 100 |
@@ -27,7 +27,7 @@ The Docker needs to be run in bridge mode and a Fixed IP address and with the CA
 ```
 docker run --name DoH-Client -d \
     --p 53:53 -p 53:53/udp \
-	--env 'DoH_V=2.1.2' \
+	--env 'DoH_V=latest' \
 	--env 'GO_DL_URL=https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz' \
 	--env 'UID=99' \
 	--env 'GID=100' \
