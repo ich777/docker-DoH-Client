@@ -4,7 +4,7 @@ LABEL maintainer="admin@minenet.at"
 
 RUN apt-get update && \
 	apt-get -y install --no-install-recommends curl software-properties-common build-essential git jq && \
-	rm -rf /var/lib/apt/lists/* && \
+	rm -rf /var/lib/apt/lists/*
 
 ENV DATA_DIR=/DoH
 ENV GO_DL_URL="https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz"
