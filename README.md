@@ -9,6 +9,8 @@ You can also use this infront of your PiHole to also block Ad's and with DoH-Ser
 
 If you have any questions feel free to ask them on the support thread in the Unraid Forums.
 
+I strongly recommend you to run the container in custom mode and give it a static IP address so that you expose all ports from the container and to avoid any network problems.&#xD; 
+
 Update Notice: If you want to upgrade to a newer version of the DoH-Server just enter the preferred version number (eg. '2.1.2' without quotes, get them from here: https://github.com/m13253/dns-over-https/releases or set it to 'latest' without quotes to check on every startup for a new version)
 
 The Docker needs to be run in bridge mode and a Fixed IP address and with the CAP and SYSCTL in the run example below added.
@@ -32,7 +34,7 @@ docker run --name DoH-Client -d \
 	--env 'UID=99' \
 	--env 'GID=100' \
 	--volume /mnt/user/appdata/doh-client:/DoH \
-    --net=br1 \
+    --net=br0 \
     --ip=192.168.1.8 \
     --restart=unless-stopped \
     --cap-add=NET_ADMIN \
