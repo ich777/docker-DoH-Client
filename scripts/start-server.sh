@@ -1,108 +1,56 @@
 #!/bin/bash
-CUR_V="$(find ${DATA_DIR} -name dohinstalled-* | cut -d '-' -f 2,3)"
-LAT_V="$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/m13253/dns-over-https/tags | jq -r '.[0].name' | cut -c2-)"
-if [ "${DoH_V}" == "latest" ]; then
-	DoH_V=$LAT_V
+CUR_V="$(find ${DATA_DIR} -name DoH-Client-v*.tar.gz | cut -d '-' -f 3,4 | cut -d 'v' -f2 | sed 's/\.tar\.gz//g')"
+LAT_V="$(wget -qO- https://github.com/ich777/versions/raw/master/DoH | grep FORK | cut -d '=' -f2)"
+if [ -z "$LAT_V" ]; then
+	LAT_V="$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/m13253/dns-over-https/tags | jq -r '.[0].name' | cut -c2-)"
 fi
-
-echo "---Checking if DoH-Client is installed---"
-if [ ! -z "$LAT_V" ]; then
-	if [ ! -f ${DATA_DIR}/doh-client/doh-client ]; then
-		echo "---DoH-Client not installed, installing---"
-	    cd ${DATA_DIR}
-	    if wget ${GO_DL_URL} ; then
-			echo "---Sucessfully downloaded Golang---"
-	    else
-			echo "---Something went wrong, can't download Golang, putting server in sleep mode---"
-			sleep infinity
-	    fi
-	    tar xzf go*
-	    export GOROOT=/DoH/go
-	    export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-	    if [ ! -d ${DATA_DIR}/gopath ]; then
-	    	mkdir gopath
-	    fi
-	    export GOPATH=/DoH/gopath/
-		if wget https://github.com/m13253/dns-over-https/archive/v${DoH_V}.tar.gz ; then
-	    	echo "---Sucessfully downloaded DoH---"
-	    else
-	    	echo "---Something went wrong, can't download DoH, putting server in sleep mode---"
-	        sleep infinity
-	    fi
-		tar xzf v${DoH_V}.tar.gz
-		touch dohinstalled-${DoH_V}
-	    CUR_V=${DoH_V}
-		rm *.tar.gz
-		cd ${DATA_DIR}/dns-over-https-${DoH_V}
-		make
-		mv ${DATA_DIR}/dns-over-https-${DoH_V}/doh-client/ ${DATA_DIR}
-	   	rm ${DATA_DIR}/doh-client/doh-client.conf
-		cd ${DATA_DIR}
-		rm -R ${DATA_DIR}/dns-over-https-${DoH_V} ${DATA_DIR}/go ${DATA_DIR}/gopath
+if [ -z "$LAT_V" ]; then
+	if [ ! -z "$CUR_V" ]; then
+		echo "---Can't get latest version of DoH-Client falling back to v$CUR_V---"
+		LAT_V="$CUR_V"
 	else
-		echo "---DoH-Client found!---"
-	fi
-else
-	echo "---Can't get latest version, putting server into sleep mode---"
-    sleep infinity
-fi
-
-echo "---Version Check---"
-if [ ! -z "$LAT_V" ]; then
-	if [ "${DoH_V}" != "$CUR_V" ]; then
-		echo "---Version missmatch v${CUR_V} installed, installing v${DoH_V}---"
-	    rm ${DATA_DIR}/dohinstalled-${CUR_V}
-		cd ${DATA_DIR}
-	    if wget ${GO_DL_URL} ; then
-			echo "---Sucessfully downloaded Golang---"
-	    else
-			echo "---Something went wrong, can't download Golang, putting server in sleep mode---"
-			sleep infinity
-	    fi
-	    tar xzf go*
-	    export GOROOT=/DoH/go
-	    export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-	    if [ ! -d ${DATA_DIR}/gopath ]; then
-	    	mkdir gopath
-	    fi
-	    export GOPATH=/DoH/gopath/
-		if wget https://github.com/m13253/dns-over-https/archive/v${DoH_V}.tar.gz ; then
-	    	echo "---Sucessfully downloaded DoH---"
-	    else
-	    	echo "---Something went wrong, can't download DoH, putting server in sleep mode---"
-	        sleep infinity
-	    fi
-		tar xzf v${DoH_V}.tar.gz
-		touch dohinstalled-${DoH_V}
-		rm *.tar.gz
-		cd ${DATA_DIR}/dns-over-https-${DoH_V}
-		make
-	    rm -R ${DATA_DIR}/doh-client
-		mv ${DATA_DIR}/dns-over-https-${DoH_V}/doh-client/ ${DATA_DIR}
-	    rm ${DATA_DIR}/doh-client/doh-client.conf
-		cd ${DATA_DIR}
-		rm -R ${DATA_DIR}/dns-over-https-${DoH_V} ${DATA_DIR}/go ${DATA_DIR}/gopath
-	elif [ "${DoH_V}" == "$CUR_V" ]; then
-		echo "---Versions match! Installed: v$CUR_V | Preferred: v${DoH_V}---"
-	fi
-else
-	echo "---Can't get latest version, continuing---"
-fi
-
-if [ ! -f ${DATA_DIR}/doh-client.conf ]; then
-	cd ${DATA_DIR}
-	if wget -qO doh-client.conf "https://raw.githubusercontent.com/ich777/docker-DoH-Client/master/config/doh-client.conf" --show-progress ; then
-		echo "---Sucessfully downloaded configuration file 'doh-client.conf' located in the root directory of the container---"
-	else
-		echo "---Something went wrong, can't download 'doh-client.conf', putting server in sleep mode---"
+		echo "---Something went wrong, can't get latest version of DoH, putting container into sleep mode---"
 		sleep infinity
 	fi
 fi
 
-echo "---Preparing Server---"
+echo "---Version Check---"
+if [ -z "$CUR_V" ]; then
+	echo "---DoH-Client not installed, installing---"
+    cd ${DATA_DIR}
+	if wget -q -nc --show-progress --progress=bar:force:noscroll -O ${DATA_DIR}/DoH-Client-v$LAT_V.tar.gz https://github.com/ich777/dns-over-https/releases/download/$LAT_V/DoH-Client-v$LAT_V.tar.gz ; then
+    	echo "---Sucessfully downloaded DoH---"
+    else
+    	echo "---Something went wrong, can't download DoH, putting container in sleep mode---"
+        sleep infinity
+    fi
+	if [ ! -d ${DATA_DIR}/doh-client ]; then
+		mkdir ${DATA_DIR}/doh-client
+	fi
+	tar -C ${DATA_DIR}/doh-client -xzf ${DATA_DIR}/DoH-Client-v$LAT_V.tar.gz
+elif [ "$CUR_V" != "$LAT_V" ]; then
+	echo "---Version missmatch, installed v$CUR_V, downloading and installing latest v$LAT_V...---"
+    cd ${DATA_DIR}
+	rm -R ${DATA_DIR}/doh-client ${DATA_DIR}/DoH-Client-v$CUR_V.tar.gz
+	if wget -q -nc --show-progress --progress=bar:force:noscroll -O ${DATA_DIR}/DoH-Client-v$LAT_V.tar.gz https://github.com/ich777/dns-over-https/releases/download/$LAT_V/DoH-Client-v$LAT_V.tar.gz ; then
+    	echo "---Sucessfully downloaded DoH---"
+    else
+    	echo "---Something went wrong, can't download DoH, putting container in sleep mode---"
+        sleep infinity
+    fi
+	if [ ! -d ${DATA_DIR}/doh-client ]; then
+		mkdir ${DATA_DIR}/doh-client
+	fi
+	tar -C ${DATA_DIR}/doh-client -xzf ${DATA_DIR}/DoH-Client-v$LAT_V.tar.gz
+elif [ "$CUR_V" == "$LAT_V" ]; then
+	echo "---DoH-Client v$CUR_V up-to-date---"
+fi
+
+echo "---Preparing DoH-Client---"
 find ${DATA_DIR} -name ".*" -exec rm -R -f {} \;
+rm -R ${DATA_DIR}/dohinstalled-* ${DATA_DIR}/gopath 2&>/dev/null
 chmod -R ${DATA_PERM} ${DATA_DIR}
 
-echo "---Starting Server---"
+echo "---Starting DoH-Client---"
 cd ${DATA_DIR}/doh-client
 ${DATA_DIR}/doh-client/doh-client -conf ${DATA_DIR}/doh-client.conf
