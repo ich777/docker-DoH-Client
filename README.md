@@ -20,8 +20,6 @@ The Docker needs to be run in bridge mode and a Fixed IP address and with the CA
 ## Env params
 | Name | Value | Example |
 | --- | --- | --- |
-| DoH_V | Version to install (set to 'latest' to install the latest version) | latest |
-| GO_DL_URL | The download url for Golang | https://dl.google.com/go/go1.1... |
 | UID | User Identifier | 99 |
 | GID | Group Identifier | 100 |
 
@@ -29,8 +27,6 @@ The Docker needs to be run in bridge mode and a Fixed IP address and with the CA
 ```
 docker run --name DoH-Client -d \
     --p 53:53 -p 53:53/udp \
-	--env 'DoH_V=latest' \
-	--env 'GO_DL_URL=https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz' \
 	--env 'UID=99' \
 	--env 'GID=100' \
 	--volume /mnt/user/appdata/doh-client:/DoH \
