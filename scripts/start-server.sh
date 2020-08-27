@@ -1,6 +1,6 @@
 #!/bin/bash
 ARCH="armv7"
-CUR_V="$(find ${DATA_DIR} -name DoH-Client-v*-$ARCH.tar.gz | cut -d '-' -f 3,4 | cut -d 'v' -f2 | sed 's/\.tar\.gz//g')"
+CUR_V="$(find ${DATA_DIR} -name DoH-Client-v*-$ARCH.tar.gz | cut -d '-' -f 3 | cut -d 'v' -f2 | sed 's/\.tar\.gz//g')"
 LAT_V="$(wget -qO- https://github.com/ich777/versions/raw/master/DoH | grep FORK | cut -d '=' -f2)"
 if [ -z "$LAT_V" ]; then
 	LAT_V="$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/m13253/dns-over-https/tags | jq -r '.[0].name' | cut -c2-)"
