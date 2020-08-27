@@ -1,5 +1,4 @@
 FROM ich777/debian-baseimage:armv7
-COPY qemu-arm-static /usr/bin/qemu-arm-static 
 
 LABEL maintainer="admin@minenet.at"
 
