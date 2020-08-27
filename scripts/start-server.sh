@@ -48,6 +48,15 @@ elif [ "$CUR_V" == "$LAT_V" ]; then
 fi
 
 echo "---Preparing DoH-Client---"
+if [ ! -f ${DATA_DIR}/doh-client.conf ]; then
+	cd ${DATA_DIR}
+	if wget -qO doh-client.conf "https://raw.githubusercontent.com/ich777/docker-DoH-Client/master/config/doh-client.conf" --show-progress ; then
+		echo "---Sucessfully downloaded configuration file 'doh-client.conf' located in the root directory of the container---"
+	else
+		echo "---Something went wrong, can't download 'doh-client.conf', putting server in sleep mode---"
+		sleep infinity
+	fi
+fi
 find ${DATA_DIR} -name ".*" -exec rm -R -f {} \;
 rm -R ${DATA_DIR}/dohinstalled-* ${DATA_DIR}/gopath 2&>/dev/null
 chmod -R ${DATA_PERM} ${DATA_DIR}
