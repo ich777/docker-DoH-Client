@@ -1,6 +1,8 @@
-FROM ich777/debian-baseimage
+FROM ich777/debian-baseimage:armv7
 
 LABEL maintainer="admin@minenet.at"
+
+COPY qemu-arm-static /usr/bin/qemu-arm-static 
 
 RUN apt-get update && \
 	apt-get -y install --no-install-recommends curl jq && \
